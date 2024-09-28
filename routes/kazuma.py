@@ -33,6 +33,6 @@ def efficient_hunter_kazuma():
             dp.append((with_circle_prepared, without_circle_prepared))
 
         max_gold = max(dp[-1])
-        result.append({"maxGold": max_gold})
+        result.append({"efficiency": max_gold})
 
     return json.dumps(result)
