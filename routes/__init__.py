@@ -9,4 +9,3 @@ import routes.digital_colony
 import routes.bug_fixer1
 import routes.corrections
 import routes.mail
-import routes.keyboard
