@@ -22,7 +22,7 @@ def correct_mistypes():
     corrections_list = []
 
     for data in data_list:
-        dictionary = data['dictionary']
+        dictionary = data['dictionary'][0:4]
         mistypes = data['mistypes']
 
         # Step 1: Preprocess the dictionary to create a signature map
