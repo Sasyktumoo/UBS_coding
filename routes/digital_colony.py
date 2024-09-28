@@ -39,7 +39,7 @@ def calculate_weight_after_generations(colony, generations):
     return str(sum(int(digit) for digit in colony))
 
 @app.route('/digital-colony', methods=['POST'])
-def evaluate():
+def dc():
     data = request.get_json()
     logging.info("Data sent for evaluation: {}".format(data))
     
