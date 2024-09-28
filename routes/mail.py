@@ -7,63 +7,58 @@ from routes import app
 
 logger = logging.getLogger(__name__)
 
-@app.route('/mailtime', methods=['POST'])
-def mailtime():
-    data = request.get_json()
-    logging.info("data sent for evaluation {}".format(data))
+def calculate_response_time(emails, users):
+    user_data = {user['name']: user for user in users}
+    response_times = {user['name']: [] for user in users}
     
-    result = calculate_response_times(data)
-    logging.info("My result :{}".format(result))
-    
-    return json.dumps(result)
+    emails.sort(key=lambda x: x['timeSent'])
 
-def calculate_response_times(data):
-    emails = data['emails']
-    users = {user['name']: user for user in data['users']}
-    
-    response_times = {user['name']: [] for user in users.values()}
-    
     for i in range(1, len(emails)):
+        email = emails[i]
         prev_email = emails[i - 1]
-        current_email = emails[i]
-        
-        sender = current_email['sender']
-        receiver = prev_email['receiver']
-        
-        sender_info = users[sender]
-        receiver_info = users[receiver]
-        
-        prev_time = datetime.fromisoformat(prev_email['timeSent'])
-        current_time = datetime.fromisoformat(current_email['timeSent'])
 
-        prev_time = prev_time.astimezone(pytz.timezone(receiver_info['officeHours']['timeZone']))
-        current_time = current_time.astimezone(pytz.timezone(sender_info['officeHours']['timeZone']))
+        if email['subject'].startswith('RE:') and email['receiver'] == prev_email['sender']:
+            sender = email['sender']
+            sender_info = user_data[sender]
+            timezone = pytz.timezone(sender_info['officeHours']['timeZone'])
+            
+            sent_time = datetime.fromisoformat(email['timeSent']).astimezone(timezone)
+            received_time = datetime.fromisoformat(prev_email['timeSent']).astimezone(timezone)
+            
+            if sent_time <= received_time:
+                continue
 
-        response_seconds = calculate_working_time(prev_time, current_time, sender_info['officeHours'])
-        response_times[sender].append(response_seconds)
-    
+            start_hour = sender_info['officeHours']['start']
+            end_hour = sender_info['officeHours']['end']
+
+            current_time = received_time
+            total_seconds = 0
+
+            while current_time < sent_time:
+                if current_time.weekday() < 5 and start_hour <= current_time.hour < end_hour:
+                    next_hour = min(sent_time, current_time.replace(minute=0, second=0, microsecond=0) + timedelta(hours=1))
+                    total_seconds += (next_hour - current_time).total_seconds()
+                    current_time = next_hour
+                else:
+                    if current_time.hour >= end_hour:
+                        current_time = current_time.replace(hour=start_hour, minute=0, second=0, microsecond=0) + timedelta(days=1)
+                    else:
+                        current_time += timedelta(hours=1)
+
+            response_times[sender].append(total_seconds)
+
     average_response_times = {user: round(sum(times) / len(times)) if times else 0 for user, times in response_times.items()}
-    
-    return {"response": average_response_times}
+    return average_response_times
 
-def calculate_working_time(start, end, office_hours):
-    current = start
-    total_seconds = 0
+@app.route('/mailtime', methods=['POST'])
+def compute():
+    data = request.get_json()
+    logging.info("Data received for evaluation: {}".format(data))
     
-    while current < end:
-        if is_working_hour(current, office_hours):
-            next_hour = current + timedelta(hours=1)
-            if next_hour > end:
-                total_seconds += (end - current).total_seconds()
-                break
-            total_seconds += 3600
-        current += timedelta(hours=1)
-        
-        if current.hour >= office_hours['end']:
-            current += timedelta(days=1)
-            current = current.replace(hour=office_hours['start'], minute=0, second=0, microsecond=0)
+    emails = data.get("emails", [])
+    users = data.get("users", [])
     
-    return total_seconds
-
-def is_working_hour(time, office_hours):
-    return office_hours['start'] <= time.hour < office_hours['end'] and time.weekday() < 5
+    result = calculate_response_time(emails, users)
+    logging.info("Calculated response times: {}".format(result))
+    
+    return json.dumps({"response": result})
