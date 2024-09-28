@@ -27,7 +27,7 @@ def find_corrections(dictionary, mistypes):
     
     return corrections
 
-@app.route('/the-clumsy-programmer', methods=['POST'])
+@app.route('/NA-for-now', methods=['POST'])
 def clumsy_programmer():
     # Parse the input JSON, assuming it's a list of dictionaries
     data_list = request.json
