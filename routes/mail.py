@@ -52,7 +52,7 @@ def calculate_response_time(emails, users):
 
 @app.route('/mailtime', methods=['POST'])
 def compute():
-    data = request.get_json()
+    data = request.get_json(force=True)
     logging.info("Data received for evaluation: {}".format(data))
     
     emails = data.get("emails", [])
@@ -61,4 +61,4 @@ def compute():
     result = calculate_response_time(emails, users)
     logging.info("Calculated response times: {}".format(result))
     
-    return json.dumps({"response": result})
+    return jsonify({"response": result})
