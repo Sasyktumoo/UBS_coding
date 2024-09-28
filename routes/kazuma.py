@@ -34,4 +34,5 @@ def efficient_hunter_kazuma():
 
         max_gold = max(dp[-1])
         result.append({"maxGold": max_gold})
-    return jsonify(result)
+
+    return json.dumps(result)
