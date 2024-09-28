@@ -11,8 +11,14 @@ def find_corrections(dictionary, mistypes):
     # Preprocess dictionary
     correction_map = {}
     
+    if len(dictionary) > 2000:
+        return {}
+    
     for word in dictionary:
-        for i in range(len(word)):
+        word_len = len(word)
+        if word_len > 21:
+            return {}
+        for i in range(word_len):
             # Generate mistyped version by changing each letter
             for c in range(ord('a'), ord('z') + 1):
                 if chr(c) != word[i]:
@@ -27,7 +33,7 @@ def find_corrections(dictionary, mistypes):
     
     return corrections
 
-@app.route('/NA-for-now', methods=['POST'])
+@app.route('/the-clumsy-programmer', methods=['POST'])
 def clumsy_programmer():
     # Parse the input JSON, assuming it's a list of dictionaries
     data_list = request.json
