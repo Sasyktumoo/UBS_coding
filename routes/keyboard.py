@@ -5,7 +5,7 @@ from routes import app
 
 logger = logging.getLogger(__name__)
 
-@app.route('/correct', methods=['POST'])
+@app.route('/the-clumsy-programmer', methods=['POST'])
 def correct_words():
     data = request.get_json()
     
