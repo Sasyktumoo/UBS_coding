@@ -54,16 +54,26 @@ def calculate_response_time(emails, users):
 def compute():
     try:
         data = request.get_json(force=True)
-        logging.info("Data received for evaluation: {}".format(data))
+        #logging.info("Data received for evaluation: {}".format(data))
         
-        input_data = data.get("input", {})
+        '''input_data = data.get("input", {})
         emails = input_data.get("emails", [])
-        users = input_data.get("users", [])
+        users = input_data.get("users", [])'''
+
+        emails = data.get("emails", [])
+        users = data.get("users", [])
         
         result = calculate_response_time(emails, users)
-        logging.info("Calculated response times: {}".format(result))
+        #logging.info("Calculated response times: {}".format(result))
         
+        response = {
+            "input": data,
+            "output": {
+                "response": result
+            }
+        }
         return jsonify({"response": result})
+        #return jsonify(response)
     except Exception as e:
-        logging.error("Error parsing request: {}".format(e))
+        #logging.error("Error parsing request: {}".format(e))
         return jsonify({"error": "Invalid input"}), 400
