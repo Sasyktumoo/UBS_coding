@@ -57,7 +57,9 @@ def dc():
         logging.info(f"Processing colony: {colony} for {generations} generations")
         final_weight = calculate_weight_after_generations(colony, generations)
         result.append(final_weight)
+        result.append("")
         logging.info(f"Final weight after {generations} generations: {final_weight}")
+        break
     
     logging.info("My result: {}".format(result))
     return json.dumps(result)
