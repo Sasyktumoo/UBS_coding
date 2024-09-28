@@ -1,12 +1,3 @@
-import json
-import logging
-from flask import jsonify
-from collections import defaultdict
-
-from flask import request
-
-from routes import app
-
 def find_corrections(dictionary, mistypes):
     # Preprocess dictionary
     correction_map = {}
@@ -27,18 +18,9 @@ def find_corrections(dictionary, mistypes):
     
     return corrections
 
-@app.route('/the-clumsy-programmer', methods=['POST'])
-def clumsy_programmer():
-    # Parse the input JSON, assuming it's a list of dictionaries
-    data_list = request.json
-    
-    results = []
-    for data in data_list:
-        dictionary = data['dictionary']
-        mistypes = data['mistypes']
-        
-        # Solve the correction problem
-        corrections = find_corrections(dictionary, mistypes)
-        results.append({'corrections': corrections})
-    
-    return jsonify(results)
+# Example usage
+dictionary = ["purple", "rocket", "silver", "gadget", "window", "dragon"]
+mistypes = ["purqle", "gadgat", "socket", "salver"]
+
+corrections = find_corrections(dictionary, mistypes)
+print(corrections)
